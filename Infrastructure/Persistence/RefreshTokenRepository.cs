@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using TestCI.Aplication.Auth;
 using TestCI.Domain.Authentification;
 
 namespace TestCI.Infrastructure.Persistence;

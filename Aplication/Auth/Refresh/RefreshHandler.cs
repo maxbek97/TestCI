@@ -1,5 +1,4 @@
 ﻿using TestCI.Aplication.Auth.Register;
-using TestCI.Domain.Authentification;
 using TestCI.Infrastructure.Authentification;
 
 namespace TestCI.Aplication.Auth.Refresh
