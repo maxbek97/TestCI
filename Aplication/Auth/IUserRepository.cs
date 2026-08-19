@@ -7,5 +7,6 @@ namespace TestCI.Aplication.Auth
         Task<bool> ExistsByEmail(string email);
         Task<User?> GetByEmail(string email);
         Task Add(User user);
+        Task<User?> GetById(int id);
     }
 }

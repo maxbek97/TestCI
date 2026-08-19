@@ -30,5 +30,10 @@
         {
             IsRevoked = true;
         }
+        public bool IsValid()
+        {
+            return !IsRevoked &&
+                   ExpiresAt > DateTime.UtcNow;
+        }
     }
 }

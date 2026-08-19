@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using TestCI.Models;
 using DomainUser = TestCI.Domain.Users.User;
+using DomainRefreshToken = TestCI.Domain.Authentification.RefreshToken;
 
 namespace TestCI.Infrastructure.Persistence;
 
@@ -23,7 +24,7 @@ public partial class DigiRubContext : DbContext
 
     public virtual DbSet<Log> Logs { get; set; }
 
-    //public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+    public virtual DbSet<DomainRefreshToken> RefreshTokens { get; set; }
 
     public virtual DbSet<DomainUser> Users { get; set; }
 
@@ -104,28 +105,28 @@ public partial class DigiRubContext : DbContext
                 .HasColumnName("table_name");
         });
 
-        //modelBuilder.Entity<RefreshToken>(entity =>
-        //{
-        //    entity.HasKey(e => e.Id).HasName("refresh_tokens_pkey");
+        modelBuilder.Entity<DomainRefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("refresh_tokens_pkey");
 
-        //    entity.ToTable("refresh_tokens");
+            entity.ToTable("refresh_tokens");
 
-        //    entity.HasIndex(e => e.Token, "refresh_tokens_token_key").IsUnique();
+            entity.HasIndex(e => e.Token, "refresh_tokens_token_key").IsUnique();
 
-        //    entity.Property(e => e.Id).HasColumnName("id");
-        //    entity.Property(e => e.CreatedAt)
-        //        .HasDefaultValueSql("now()")
-        //        .HasColumnName("created_at");
-        //    entity.Property(e => e.ExpiresAt).HasColumnName("expires_at");
-        //    entity.Property(e => e.IsRevoked).HasColumnName("is_revoked");
-        //    entity.Property(e => e.Token).HasColumnName("token");
-        //    entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("created_at");
+            entity.Property(e => e.ExpiresAt).HasColumnName("expires_at");
+            entity.Property(e => e.IsRevoked).HasColumnName("is_revoked");
+            entity.Property(e => e.Token).HasColumnName("token");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
 
-        //    entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
-        //        .HasForeignKey(d => d.UserId)
-        //        .OnDelete(DeleteBehavior.ClientSetNull)
-        //        .HasConstraintName("refresh_tokens_user_id_fkey");
-        //});
+            //entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
+            //    .HasForeignKey(d => d.UserId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("refresh_tokens_user_id_fkey");
+        });
 
         modelBuilder.Entity<DomainUser>(entity =>
         {

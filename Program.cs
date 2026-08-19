@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using TestCI.Aplication.Auth;
 using TestCI.Aplication.Auth.Register;
+using TestCI.Aplication.Auth.Refresh;
+using TestCI.Aplication.Auth;
 using TestCI.Infrastructure.Authentification;
 using TestCI.Infrastructure.Persistence;
 using TestCI.Models;
+using TestCI.Domain.Authentification;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,9 +33,17 @@ builder.Services.AddDbContext<DigiRubContext>(options =>
         connectionString,
         o => o.MapEnum<StatusWallet>("status_wallet")
         ));
+
 builder.Services.AddScoped<RegisterHandler>();
+builder.Services.AddScoped<RefreshHandler>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordService>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+
+builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("AuthSettings"));
+var secretKey = Environment.GetEnvironmentVariable("SECRETKEY")
+                ?? builder.Configuration["AuthSettings:SecretKey"];
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

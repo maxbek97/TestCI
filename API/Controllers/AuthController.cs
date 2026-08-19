@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TestCI.Aplication.Auth.Register;
+using TestCI.Aplication.Auth.Refresh;
 
 namespace TestCI.API.Controllers
 {
@@ -9,10 +10,12 @@ namespace TestCI.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly RegisterHandler _registerHandler;
+        private readonly RefreshHandler _refreshHandler;
 
-        public AuthController(RegisterHandler registerHandler)
+        public AuthController(RegisterHandler registerHandler, RefreshHandler refreshHandler)
         {
             _registerHandler = registerHandler;
+            _refreshHandler = refreshHandler;
         }
 
         [HttpPost("register")]
@@ -25,6 +28,18 @@ namespace TestCI.API.Controllers
 
             return Ok(new { message = result.Message });
         }
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequest request)
+        {
+            var result = await _refreshHandler.Handle(request);
+            if (!result.success)
+            {
+                return Unauthorized(new { message = result.Message });
+            }
+
+            return Ok(new { accessToken = result.NewAccessToken });
+        }
+
 
         //[HttpPost("login")]
         //public async Task<IActionResult> Login([FromBody] LoginDTO dto)
@@ -48,27 +63,6 @@ namespace TestCI.API.Controllers
         //    });
 
         //}
-        //[HttpPost("refresh")]
-        //public async Task<IActionResult> Refresh([FromBody] RefreshDTO dto)
-        //{
 
-        //    var result = await _authService.RefreshAsync(dto);
-
-        //    if (!result.Success)
-        //    {
-        //        return Unauthorized(new
-        //        {
-        //            success = false,
-        //            message = "Unauthorized"
-        //        });
-        //    }
-
-        //    return Ok(new
-        //    {
-        //        success = true,
-        //        accessToken = result.NewAccessToken,
-        //    });
-
-        //}
     }
 }

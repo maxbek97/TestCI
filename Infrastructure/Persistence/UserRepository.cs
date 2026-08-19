@@ -36,5 +36,11 @@ namespace TestCI.Infrastructure.Persistence
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
         }
+        
+            public async Task<User?> GetById(int id)
+        {
+            return await _db.Users
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
     }
 }
