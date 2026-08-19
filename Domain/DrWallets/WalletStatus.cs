@@ -1,4 +1,4 @@
-﻿namespace TestCI.Models
+﻿namespace TestCI.Domain.DrWallets
 {
     public enum StatusWallet
     {
