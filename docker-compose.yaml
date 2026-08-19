@@ -1,22 +1,42 @@
 services:
   postgres:
     image: postgres:16
-    container_name: diploma_db
+    container_name: CI_db
     restart: always
     environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "${DB_PORT}:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - diploma_network
+      - CI_network
+
+  backend:
+    build: .
+    container_name: CI_backend
+    depends_on:
+       - postgres
+
+    restart: always
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SECRETKEY: ${SECRETKEY}
+    ports:
+      - "5000:8080"
+    command: [ "dotnet", "TestCI.dll" ]
+    networks:
+      - CI_network
 
 
 networks:
-  diploma_network:
+  CI_network:
 
 volumes:
   postgres_data:
