@@ -74,7 +74,7 @@ public partial class DigiRubContext : DbContext
             entity.Property(e => e.ClientId).HasColumnName("client_id");
             entity.Property(e => e.BillId).HasColumnName("id_bill");
             entity.Property(e => e.Status)
-                .HasColumnName("status")
+                .HasColumnName("status_wallet")
                 .HasColumnType("status_wallet");
             //entity.HasOne(d => d.Client).WithMany(p => p.DrWallets)
             //    .HasForeignKey(d => d.ClientId)

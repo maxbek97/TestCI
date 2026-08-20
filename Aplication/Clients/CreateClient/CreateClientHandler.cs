@@ -34,7 +34,7 @@ namespace TestCI.Aplication.Clients.CreateClient
                 await _clients.Save();
             }
             catch (Exception ex) {
-                return CreateClientResult.Failure("Something went wrong");
+                return CreateClientResult.Failure($"Something went wrong + {ex}");
             }
 
             return CreateClientResult.Success("Client created successfully");
