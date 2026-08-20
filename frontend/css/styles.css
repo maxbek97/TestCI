@@ -62,7 +62,24 @@
   }
   
   .cf-header {
-      margin: 48px 0 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Позволяет переносить кнопки на новую строку при нехватке места */
+    gap: 16px;       /* Гарантированный отступ между заголовком и кнопками */
+}
+
+  .cf-title.h1 {
+    word-break: break-word; /* Безопасный перенос слишком длинных слов/ФИО */
+    flex: 1 1 300px;        /* Занимает доступное место, минимальная ширина 300px */
+  }
+
+  .header-buttons {
+    margin-top: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;        /* Отступ между кнопками вместо inline-стилей */
+      flex-shrink: 0;   /* Запрещает кнопкам сжиматься и деформироваться */
   }
   
   .cf-title.h1 {
