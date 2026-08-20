@@ -49,23 +49,6 @@ namespace TestCI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "refresh_tokens",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    token = table.Column<string>(type: "text", nullable: false),
-                    user_id = table.Column<int>(type: "integer", nullable: false),
-                    expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    is_revoked = table.Column<bool>(type: "boolean", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("refresh_tokens_pkey", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "users",
                 columns: table => new
                 {
@@ -87,7 +70,7 @@ namespace TestCI.Migrations
                     id_drw = table.Column<Guid>(type: "uuid", nullable: false),
                     client_id = table.Column<Guid>(type: "uuid", nullable: false),
                     id_bill = table.Column<Guid>(type: "uuid", nullable: true),
-                    status_wallet = table.Column<int>(type: "status_wallet", nullable: false),
+                    status_wallet = table.Column<int>(type: "integer", nullable: false),
                     ClientMid = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
@@ -103,6 +86,29 @@ namespace TestCI.Migrations
                         column: x => x.client_id,
                         principalTable: "clients",
                         principalColumn: "mid",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "refresh_tokens",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    token = table.Column<string>(type: "text", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    is_revoked = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("refresh_tokens_pkey", x => x.id);
+                    table.ForeignKey(
+                        name: "refresh_tokens_user_id_fkey",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id_user",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -127,6 +133,11 @@ namespace TestCI.Migrations
                 name: "IX_dr_wallet_ClientMid",
                 table: "dr_wallet",
                 column: "ClientMid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_refresh_tokens_user_id",
+                table: "refresh_tokens",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "refresh_tokens_token_key",
@@ -160,10 +171,10 @@ namespace TestCI.Migrations
                 name: "refresh_tokens");
 
             migrationBuilder.DropTable(
-                name: "users");
+                name: "clients");
 
             migrationBuilder.DropTable(
-                name: "clients");
+                name: "users");
         }
     }
 }

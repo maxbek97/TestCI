@@ -58,6 +58,8 @@ namespace TestCI.Migrations
                     b.HasKey("Id")
                         .HasName("refresh_tokens_pkey");
 
+                    b.HasIndex("UserId");
+
                     b.HasIndex(new[] { "Token" }, "refresh_tokens_token_key")
                         .IsUnique();
 
@@ -119,7 +121,7 @@ namespace TestCI.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<int>("Status")
-                        .HasColumnType("status_wallet")
+                        .HasColumnType("integer")
                         .HasColumnName("status_wallet");
 
                     b.HasKey("Id_DRw")
@@ -219,6 +221,16 @@ namespace TestCI.Migrations
                         .HasName("logs_pkey");
 
                     b.ToTable("logs", (string)null);
+                });
+
+            modelBuilder.Entity("TestCI.Domain.Authentification.RefreshToken", b =>
+                {
+                    b.HasOne("TestCI.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("refresh_tokens_user_id_fkey");
                 });
 
             modelBuilder.Entity("TestCI.Domain.DrWallets.DrWallet", b =>
