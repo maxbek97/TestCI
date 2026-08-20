@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TestCI.Aplication.Wallets.CreateWallet;
+using TestCI.Aplication.Wallets.UpdateFromPlatform;
 
 namespace TestCI.API.Controllers
 {
@@ -10,11 +11,13 @@ namespace TestCI.API.Controllers
     public class WalletController : ControllerBase
     {
         private readonly CreateWalletHandler _createWalletHandler;
+        private readonly UpdateStatusWalletHandler _updateStatusWalletHandler;
 
         public WalletController(
-            CreateWalletHandler createWalletHandler)
+            CreateWalletHandler createWalletHandler, UpdateStatusWalletHandler updateStatusWalletHandler)
         {
             _createWalletHandler = createWalletHandler;
+            _updateStatusWalletHandler = updateStatusWalletHandler;
         }
 
         [HttpPost("create")]
@@ -22,6 +25,20 @@ namespace TestCI.API.Controllers
            [FromBody] CreateWalletRequest request)
         {
             var result = await _createWalletHandler.Handle(request);
+
+            if (!result.success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPatch("update")]
+        public async Task<IActionResult> CreateWallet(
+   [FromBody] UpdateWalletStatusRequest request)
+        {
+            var result = await _updateStatusWalletHandler.Handle(request);
 
             if (!result.success)
             {

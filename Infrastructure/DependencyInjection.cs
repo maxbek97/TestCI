@@ -12,6 +12,7 @@ using TestCI.Aplication.Clients;
 using TestCI.Aplication.Clients.CreateClient;
 using TestCI.Aplication.Clients.GetWallets;
 using TestCI.Aplication.Wallets.CreateWallet;
+using TestCI.Aplication.Wallets.UpdateFromPlatform;
 using TestCI.Application.Clients.GetClients;
 using TestCI.Domain.DrWallets;
 using TestCI.Infrastructure.Authentification;
@@ -63,6 +64,7 @@ namespace TestCI.Infrastructure
             services.AddScoped<CreateClientHandler>();
             services.AddScoped<GetWalletClientHandler>();
             services.AddScoped<CreateWalletHandler>();
+            services.AddScoped<UpdateStatusWalletHandler>();  
             services.AddScoped<IWalletRepository, WalletRepository>();
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
