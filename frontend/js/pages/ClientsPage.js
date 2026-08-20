@@ -23,6 +23,9 @@ export function ClientsPage() {
                         <option value="50">50</option>
                     </select>
                 </div>
+                <div class="header-buttons">
+                    <button class="action-button" id="createClientBtn">Создать клиента</button>
+                </div>
             </div>
 
             <table class="data-table">
@@ -63,7 +66,11 @@ export function initClientsEvents() {
     const nextBtn = document.getElementById('nextBtn');
     const paginationPages = document.getElementById('paginationPages');
     const tbody = document.getElementById('tableBody');
+    const createBtn = document.getElementById('createClientBtn');
 
+    if (createBtn) {
+        createBtn.addEventListener('click', () => navigateTo('/clients/create'));
+    }
     async function loadClients() {
         const paginationInfo = document.getElementById('paginationInfo');
         if (!tbody) return;

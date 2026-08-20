@@ -2,12 +2,14 @@ import { AuthPage, initAuthEvents } from './pages/AuthPage.js';
 import { RegisterPage, initRegisterEvents } from './pages/RegisterPage.js';
 import { ClientsPage, initClientsEvents } from './pages/ClientsPage.js';
 import { WalletsPage, initWalletsEvents } from './pages/WalletPage.js';
+import { CreateClientPage, initCreateClientEvents } from './pages/CreateClientPage.js';
 
 const routes = {
     '/': { page: AuthPage, init: initAuthEvents },
     '/auth': { page: AuthPage, init: initAuthEvents },
     '/register': { page: RegisterPage, init: initRegisterEvents },
     '/clients': { page: ClientsPage, init: initClientsEvents },
+    '/clients/create': {page: CreateClientPage, init: initCreateClientEvents}
 };
 
 export async function router() {
