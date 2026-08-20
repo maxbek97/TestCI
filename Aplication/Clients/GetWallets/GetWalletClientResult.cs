@@ -5,7 +5,7 @@ namespace TestCI.Aplication.Clients.GetWallets
     public class GetWalletClientResult
     {
         public bool success { get; set; } 
-        public List<WalletResult> Clients { get; set; } = new();
+        public List<WalletResult> wallets { get; set; } = new();
         public string? message { get; set; }
 
         public static GetWalletClientResult Success(List<DrWallet> client_wallets)
@@ -24,7 +24,7 @@ namespace TestCI.Aplication.Clients.GetWallets
                     BillId = i.BillId,
                     Status = i.Status
                 };
-                result.Clients.Add(wallet);
+                result.wallets.Add(wallet);
             }
             return result;
         }
@@ -33,7 +33,7 @@ namespace TestCI.Aplication.Clients.GetWallets
             return new GetWalletClientResult
             {
                 success = false,
-                Clients = new List<WalletResult>(),
+                wallets = new List<WalletResult>(),
                 message = message
             };
         }
