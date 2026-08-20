@@ -1,14 +1,16 @@
-﻿using TestCI.Aplication.Clients;
-using TestCI.Domain.DrWallets;
+﻿using Microsoft.EntityFrameworkCore;
+using TestCI.Aplication.Clients;
+using TestCI.Aplication.Wallets.PutBillNumber;
+using TestCI.Aplication.Wallets.UpdateFromPlatform;
 
-namespace TestCI.Aplication.Wallets.UpdateFromPlatform
+namespace TestCI.Aplication.Wallets.PutBillNumber
 {
-    public class UpdateStatusWalletHandler
+    public class PutIdBillHandler
     {
         private readonly IClientRepository _clients;
         private readonly IWalletRepository _wallets;
 
-        public UpdateStatusWalletHandler(
+        public PutIdBillHandler(
             IClientRepository clients,
             IWalletRepository wallets)
         {
@@ -16,43 +18,47 @@ namespace TestCI.Aplication.Wallets.UpdateFromPlatform
             _wallets = wallets;
         }
 
-        public async Task<UpdateWallerStatusResult> Handle(
-            UpdateWalletStatusRequest request)
+        public async Task<PutIdBillResult> Handle(
+            PutIdBillRequest request)
         {
             var client = await _clients.GetByMid(request.ClientId);
 
             if (client == null)
             {
-                return UpdateWallerStatusResult.Failure(
+                return PutIdBillResult.Failure(
                     "Client not found.");
             }
 
             var wallet = await _wallets.GetByIdDr(request.Id_Dr);
             if (wallet == null)
             {
-                return UpdateWallerStatusResult.Failure(
+                return PutIdBillResult.Failure(
                     "Wallet with this platform ID doestn exists");
             }
 
             if (wallet.ClientId != request.ClientId)
             {
-                return UpdateWallerStatusResult.Failure(
+                return PutIdBillResult.Failure(
                     "Wallet does not belong to this client.");
             }
 
             try
             {
-                wallet.ChangeStatus(request.newStatus);
+                wallet.SetBillId(request.Id_Bill);
                 await _wallets.Save();
             }
             catch (InvalidOperationException ex)
             {
-                return UpdateWallerStatusResult.Failure($"Something went wrong + {ex.Message}");
+                return PutIdBillResult.Failure(ex.Message);
+            }
+            catch (DbUpdateException ex)
+            {
+                return PutIdBillResult.Failure(
+                    "This bill ID is already assigned to another wallet.");
             }
 
-
-            return UpdateWallerStatusResult.Success(
-                "Wallet status update successfully.");
+            return PutIdBillResult.Success(
+                "Bill`s id put successfully");
         }
     }
 }

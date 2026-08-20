@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using System.Text;
 using TestCI.Aplication;
 using TestCI.Aplication.Auth;
@@ -11,7 +12,9 @@ using TestCI.Aplication.Auth.Register;
 using TestCI.Aplication.Clients;
 using TestCI.Aplication.Clients.CreateClient;
 using TestCI.Aplication.Clients.GetWallets;
+using TestCI.Aplication.Clients.PutClientIdDr;
 using TestCI.Aplication.Wallets.CreateWallet;
+using TestCI.Aplication.Wallets.PutBillNumber;
 using TestCI.Aplication.Wallets.UpdateFromPlatform;
 using TestCI.Application.Clients.GetClients;
 using TestCI.Domain.DrWallets;
@@ -44,11 +47,14 @@ namespace TestCI.Infrastructure
                     ?? configuration["AuthSettings:SecretKey"]
                     ?? throw new InvalidOperationException("JWT SecretKey is missing!");
 
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+            dataSourceBuilder.MapEnum<StatusWallet>("status_wallet");
+            var dataSource = dataSourceBuilder.Build();
+
             services.AddDbContext<DigiRubContext>(options =>
-                options.UseNpgsql(
-                    connectionString,
-                    o => o.MapEnum<StatusWallet>("status_wallet")
-                ));
+                options.UseNpgsql(dataSource));
+
+
 
             services.Configure<AuthSettings>(options =>
             {
@@ -64,7 +70,9 @@ namespace TestCI.Infrastructure
             services.AddScoped<CreateClientHandler>();
             services.AddScoped<GetWalletClientHandler>();
             services.AddScoped<CreateWalletHandler>();
-            services.AddScoped<UpdateStatusWalletHandler>();  
+            services.AddScoped<UpdateStatusWalletHandler>();
+            services.AddScoped<PutIdBillHandler>();
+            services.AddScoped<SetIdDrClientHandler>();
             services.AddScoped<IWalletRepository, WalletRepository>();
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IUserRepository, UserRepository>();

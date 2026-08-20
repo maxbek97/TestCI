@@ -9,8 +9,7 @@ namespace TestCI.Aplication
         Task<List<DrWallet>> Get(
             Guid mid);
 
-        Task<DrWallet> GetByIdDr(Guid Id_dr);
-        Task Update(DrWallet wallet);
+        Task<DrWallet?> GetByIdDr(Guid Id_dr);
         Task<bool> ExistsById(Guid id_dr);
 
         Task Create(DrWallet wallet);

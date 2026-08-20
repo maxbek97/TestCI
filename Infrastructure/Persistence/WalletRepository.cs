@@ -36,15 +36,10 @@ namespace TestCI.Infrastructure.Persistence
         }
 
         //Нужно будет уточнить
-        public async Task<DrWallet> GetByIdDr(Guid Id_dr)
+        public async Task<DrWallet?> GetByIdDr(Guid Id_dr)
         {
             return await _db.DrWallets
                 .FirstOrDefaultAsync(x => x.Id_DRw == Id_dr);
-        }
-        public async Task Update(DrWallet wallet)
-        {
-            _db.DrWallets.Attach(wallet);
-            _db.Entry(wallet).Property(c => c.Status).IsModified = true;
         }
     }
 }
