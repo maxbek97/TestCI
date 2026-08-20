@@ -38,7 +38,7 @@ namespace TestCI.Domain.Clients
             if (wallet.ClientId != Mid)
             {
                 throw new InvalidOperationException(
-                    "Ереыы тще нщгк цфддуе");
+                    "cant create wallet for incorrect user");
             }
 
 
@@ -49,6 +49,11 @@ namespace TestCI.Domain.Clients
             }
 
             _drWallets.Add(wallet);
+        }
+
+        public void LoadDrWallets(IEnumerable<DrWallet> wallets)
+        {
+            _drWallets.AddRange(wallets);
         }
 
         public void SetIdDr(Guid idDr)

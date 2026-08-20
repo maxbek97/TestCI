@@ -8,5 +8,10 @@ namespace TestCI.Aplication
         Task<List<DrWallet>> Get(
             Guid mid);
 
+        Task<bool> ExistsById(Guid id_dr);
+
+        Task Create(DrWallet wallet);
+
+        Task Save();
     }
 }

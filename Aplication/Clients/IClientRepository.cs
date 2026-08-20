@@ -10,6 +10,8 @@ namespace TestCI.Aplication.Clients
             int page,
             int pageSize);
 
+        Task<Client?> GetByMid(Guid mid);
+
         Task<int> Count(
             string? search);
 

@@ -19,5 +19,20 @@ namespace TestCI.Infrastructure.Persistence
                 .Where(x => x.ClientId == mid)
                 .ToListAsync();
         }
+        public async Task<bool> ExistsById(Guid id_dr)
+        {
+            return await _db.DrWallets
+                .AnyAsync(x => x.Id_DRw == id_dr);
+        }
+
+        public async Task Create(DrWallet wallet)
+        {
+            await _db.DrWallets.AddAsync(wallet);
+        }
+
+        public async Task Save()
+        {
+            await _db.SaveChangesAsync();
+        }
     }
 }

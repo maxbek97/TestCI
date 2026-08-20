@@ -37,6 +37,22 @@ public class ClientRepository : IClientRepository
             .Take(pageSize)
             .ToListAsync();
     }
+    public async Task<Client?> GetByMid(Guid mid)
+    {
+        var client = await _db.Clients
+            .FirstOrDefaultAsync(x => x.Mid == mid);
+
+        if (client == null)
+            return null;
+
+        var wallets = await _db.DrWallets
+            .Where(x => x.ClientId == mid)
+            .ToListAsync();
+
+        client.LoadDrWallets(wallets);
+
+        return client;
+    }
 
     public async Task<int> Count(string? search)
     {
