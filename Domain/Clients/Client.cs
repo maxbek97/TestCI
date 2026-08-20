@@ -32,6 +32,7 @@ namespace TestCI.Domain.Clients
             MiddleName = middleName;
         }
 
+
         public void AddDrWallet(DrWallet wallet)
         {
             if (wallet.ClientId != Mid)

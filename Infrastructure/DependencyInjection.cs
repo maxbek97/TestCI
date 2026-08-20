@@ -8,6 +8,7 @@ using TestCI.Aplication.Auth.Login;
 using TestCI.Aplication.Auth.Refresh;
 using TestCI.Aplication.Auth.Register;
 using TestCI.Aplication.Clients;
+using TestCI.Aplication.Clients.CreateClient;
 using TestCI.Application.Clients.GetClients;
 using TestCI.Domain.DrWallets;
 using TestCI.Infrastructure.Authentification;
@@ -56,6 +57,7 @@ namespace TestCI.Infrastructure
             services.AddScoped<RefreshHandler>();
             services.AddScoped<LoginHandler>();
             services.AddScoped<GetClientsHandler>();
+            services.AddScoped<CreateClientHandler>();
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher, PasswordService>();

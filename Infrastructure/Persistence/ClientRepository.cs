@@ -54,4 +54,20 @@ public class ClientRepository : IClientRepository
 
         return await query.CountAsync();
     }
+
+    public async Task Create(Client client)
+    {
+        _db.Clients.Add(client);
+    }
+
+    public async Task Save()
+    {
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task<bool> ExistsByMid(Guid mid)
+    {
+        return await _db.Clients
+            .AnyAsync(x => x.Mid == mid);
+    }
 }
