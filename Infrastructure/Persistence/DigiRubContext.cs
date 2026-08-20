@@ -80,6 +80,11 @@ public partial class DigiRubContext : DbContext
             //    .HasForeignKey(d => d.ClientId)
             //    .OnDelete(DeleteBehavior.ClientSetNull)
             //    .HasConstraintName("dr_wallet_client_id_fkey");
+            entity.HasOne<DomainClient>()
+                .WithMany()
+                .HasForeignKey(e => e.ClientId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("dr_wallet_client_id_fkey");
         });
 
         modelBuilder.Entity<Log>(entity =>
@@ -126,7 +131,11 @@ public partial class DigiRubContext : DbContext
             entity.Property(e => e.IsRevoked).HasColumnName("is_revoked");
             entity.Property(e => e.Token).HasColumnName("token");
             entity.Property(e => e.UserId).HasColumnName("user_id");
-
+            entity.HasOne<DomainUser>()
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("refresh_tokens_user_id_fkey");
             //entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
             //    .HasForeignKey(d => d.UserId)
             //    .OnDelete(DeleteBehavior.ClientSetNull)

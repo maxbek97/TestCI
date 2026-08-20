@@ -48,8 +48,7 @@ namespace TestCI.Infrastructure
 
             services.AddDbContext<DigiRubContext>(options =>
                 options.UseNpgsql(
-                    connectionString,
-                    o => o.MapEnum<StatusWallet>("status_wallet")
+                    connectionString
                 ));
 
             services.Configure<AuthSettings>(options =>
