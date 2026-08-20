@@ -41,10 +41,5 @@ namespace TestCI.Infrastructure.Persistence
             return await _db.DrWallets
                 .FirstOrDefaultAsync(x => x.Id_DRw == Id_dr);
         }
-        public async Task Update(DrWallet wallet)
-        {
-            _db.DrWallets.Attach(wallet);
-            _db.Entry(wallet).Property(c => c.Status).IsModified = true;
-        }
     }
 }
