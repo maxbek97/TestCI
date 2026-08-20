@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Платформа Цифрового Рубля</title>
+  <link href="styles.css" rel="stylesheet"/>
+  <script src='script.js'></script>
+</head>
+<body>
+	<div class="App">
+        <header class="request-header">
+            <div class="request-wrapper-global" bis_skin_checked="1">
+                <div class="request-header__row" bis_skin_checked="1">
+                    <a href="https://www.centrinvest.ru" title="ПАО КБ «Центр-инвест»">
+                        <img class="request-header__logo-img" src="assets/logo.svg"/>
+                    </a>
+                    <div class="request-header__links" bis_skin_checked="1">
+                        <a href="https://www.centrinvest.ru/about/contacts" class="request-header__header-link" title="Вернуться на сайт ПАО КБ «Центр-инвест»">Вернуться на сайт банка</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+      <div class="request-wrapper-global" bis_skin_checked="1">
+          <div class="cf-header" bis_skin_checked="1">
+                  <h1 class="cf-title h1">Клиенты</h1>
+          </div>
+      </div>
+      <div class="table-container">
+        <div class="table-header">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Поиск по таблице...">
+            </div>
+          <div class="page-size-selector">
+            <label for="pageSize">Показывать по:</label>
+            <select id="pageSize" name="pageSize">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+        </div>
+
+        <table class="data-table">
+            <thead>
+              <tr>
+                <th>mid</th>
+                <th>Фамилия</th>
+                <th>Имя</th>
+                <th>Отчество</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr>
+                <td>1</td>
+                <td>Иван Иванов</td>
+                <td>ivan@example.com</td>
+                <td>Администратор</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Петр Петров</td>
+                <td>petr@example.com</td>
+                <td>Пользователь</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>Иван Иванов</td>
+                <td>ivan@example.com</td>
+                <td>Администратор</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Петр Петров</td>
+                <td>petr@example.com</td>
+                <td>Пользователь</td>
+              </tr>
+              
+            </tbody>
+          </table>
+          <div class="table-footer">
+            <div class="pagination-info">
+              Показано <span>1–10</span> из <span>50</span> записей
+            </div>
+      
+            <div class="pagination">
+              <button class="pagination-btn" id="prevBtn" disabled>&laquo; Назад</button>
+      
+              <div class="pagination-pages" id="paginationPages">
+                <button class="page-num active">1</button>
+                <button class="page-num">2</button>
+                <button class="page-num">3</button>
+                <span class="dots">...</span>
+                <button class="page-num">5</button>
+              </div>
+      
+              <button class="pagination-btn" id="nextBtn">Вперед &raquo;</button>
+            </div>
+          </div>
+  </div>
+</body>
+</html>

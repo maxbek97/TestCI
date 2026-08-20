@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using TestCI.Models;
 using DomainUser = TestCI.Domain.Users.User;
 using DomainRefreshToken = TestCI.Domain.Authentification.RefreshToken;
+using DomainDrWallet = TestCI.Domain.DrWallets.DrWallet;
+using DomainStatusWallet = TestCI.Domain.DrWallets.StatusWallet;
+using DomainClient = TestCI.Domain.Clients.Client;
 
 namespace TestCI.Infrastructure.Persistence;
 
@@ -18,9 +21,9 @@ public partial class DigiRubContext : DbContext
     {
     }
 
-    public virtual DbSet<Client> Clients { get; set; }
+    public virtual DbSet<DomainClient> Clients { get; set; }
 
-    public virtual DbSet<DrWallet> DrWallets { get; set; }
+    public virtual DbSet<DomainDrWallet> DrWallets { get; set; }
 
     public virtual DbSet<Log> Logs { get; set; }
 
@@ -30,9 +33,9 @@ public partial class DigiRubContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresEnum<StatusWallet>("public", "status_wallet");
+        modelBuilder.HasPostgresEnum<DomainStatusWallet>("public", "status_wallet");
 
-        modelBuilder.Entity<Client>(entity =>
+        modelBuilder.Entity<DomainClient>(entity =>
         {
             entity.HasKey(e => e.Mid).HasName("clients_pkey");
 
@@ -43,9 +46,11 @@ public partial class DigiRubContext : DbContext
             entity.Property(e => e.Mid)
                 .ValueGeneratedNever()
                 .HasColumnName("mid");
+
             entity.Property(e => e.FisrtName)
                 .HasMaxLength(255)
                 .HasColumnName("fisrt_name");
+
             entity.Property(e => e.IdDr).HasColumnName("id_dr");
             entity.Property(e => e.LastName)
                 .HasMaxLength(255)
@@ -55,25 +60,29 @@ public partial class DigiRubContext : DbContext
                 .HasColumnName("middle_name");
         });
 
-        modelBuilder.Entity<DrWallet>(entity =>
+        modelBuilder.Entity<DomainDrWallet>(entity =>
         {
-            entity.HasKey(e => e.IdDrw).HasName("dr_wallet_pkey");
+            entity.HasKey(e => e.Id_DRw).HasName("dr_wallet_pkey");
 
             entity.ToTable("dr_wallet");
 
-            entity.HasIndex(e => e.IdBill, "dr_wallet_id_bill_key").IsUnique();
+            entity.HasIndex(e => e.BillId, "dr_wallet_id_bill_key").IsUnique();
 
-            entity.Property(e => e.IdDrw)
+            entity.Property(e => e.Id_DRw)
                 .ValueGeneratedNever()
                 .HasColumnName("id_drw");
             entity.Property(e => e.ClientId).HasColumnName("client_id");
-            entity.Property(e => e.IdBill).HasColumnName("id_bill");
+            entity.Property(e => e.BillId).HasColumnName("id_bill");
             entity.Property(e => e.Status)
-                .HasColumnName("status")
-                .HasColumnType("status_wallet");
-            entity.HasOne(d => d.Client).WithMany(p => p.DrWallets)
-                .HasForeignKey(d => d.ClientId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasColumnName("status_wallet");
+            //entity.HasOne(d => d.Client).WithMany(p => p.DrWallets)
+            //    .HasForeignKey(d => d.ClientId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("dr_wallet_client_id_fkey");
+            entity.HasOne<DomainClient>()
+                .WithMany()
+                .HasForeignKey(e => e.ClientId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("dr_wallet_client_id_fkey");
         });
 
@@ -121,7 +130,11 @@ public partial class DigiRubContext : DbContext
             entity.Property(e => e.IsRevoked).HasColumnName("is_revoked");
             entity.Property(e => e.Token).HasColumnName("token");
             entity.Property(e => e.UserId).HasColumnName("user_id");
-
+            entity.HasOne<DomainUser>()
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("refresh_tokens_user_id_fkey");
             //entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
             //    .HasForeignKey(d => d.UserId)
             //    .OnDelete(DeleteBehavior.ClientSetNull)

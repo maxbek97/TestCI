@@ -1,8 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Npgsql;
+using System.Text;
+using TestCI.Aplication;
 using TestCI.Aplication.Auth;
 using TestCI.Aplication.Auth.Login;
 using TestCI.Aplication.Auth.Refresh;
 using TestCI.Aplication.Auth.Register;
+using TestCI.Aplication.Clients;
+using TestCI.Aplication.Clients.CreateClient;
+using TestCI.Aplication.Clients.GetWallets;
+using TestCI.Aplication.Clients.PutClientIdDr;
+using TestCI.Aplication.Wallets.CreateWallet;
+using TestCI.Aplication.Wallets.PutBillNumber;
+using TestCI.Aplication.Wallets.UpdateFromPlatform;
+using TestCI.Application.Clients.GetClients;
+using TestCI.Domain.DrWallets;
 using TestCI.Infrastructure.Authentification;
 using TestCI.Infrastructure.Persistence;
 using TestCI.Models;
@@ -28,31 +43,59 @@ namespace TestCI.Infrastructure
             var connectionString = dockerConnectionString
                                    ?? configuration.GetConnectionString("DefaultConnection");
 
+            var secretKey = Environment.GetEnvironmentVariable("SECRETKEY")
+                    ?? configuration["AuthSettings:SecretKey"]
+                    ?? throw new InvalidOperationException("JWT SecretKey is missing!");
+
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+            dataSourceBuilder.MapEnum<StatusWallet>("status_wallet");
+            var dataSource = dataSourceBuilder.Build();
+
             services.AddDbContext<DigiRubContext>(options =>
-    options.UseNpgsql(
-        connectionString,
-        o => o.MapEnum<StatusWallet>("status_wallet")
-        ));
+                options.UseNpgsql(dataSource));
+
 
 
             services.Configure<AuthSettings>(options =>
             {
                 // Затягиваем секцию из appsettings.json
                 configuration.GetSection("AuthSettings").Bind(options);
-
-                // Подменяем/дописываем SecretKey из переменных окружения, если он там есть
-                options.SecretKey = Environment.GetEnvironmentVariable("SECRETKEY")
-                                    ?? options.SecretKey;
+                options.SecretKey = secretKey;
             });
 
             services.AddScoped<RegisterHandler>();
             services.AddScoped<RefreshHandler>();
             services.AddScoped<LoginHandler>();
+            services.AddScoped<GetClientsHandler>();
+            services.AddScoped<CreateClientHandler>();
+            services.AddScoped<GetWalletClientHandler>();
+            services.AddScoped<CreateWalletHandler>();
+            services.AddScoped<UpdateStatusWalletHandler>();
+            services.AddScoped<PutIdBillHandler>();
+            services.AddScoped<SetIdDrClientHandler>();
+            services.AddScoped<IWalletRepository, WalletRepository>();
+            services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher, PasswordService>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IJwtService, JwtService>();
-
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(secretKey!))
+    };
+});
 
             return services;
         }
