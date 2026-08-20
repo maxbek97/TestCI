@@ -6,6 +6,9 @@
         public Guid ClientId { get; private set; }
         public Guid? BillId { get; private set; }
         public StatusWallet Status { get; private set; }
+        private DrWallet()
+        {
+        }
         public DrWallet(
         Guid id_DRw,
         Guid clientId,

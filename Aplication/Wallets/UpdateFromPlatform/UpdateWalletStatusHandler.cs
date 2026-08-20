@@ -34,11 +34,15 @@ namespace TestCI.Aplication.Wallets.UpdateFromPlatform
                     "Wallet with this platform ID doestn exists");
             }
 
-           
+            if (wallet.ClientId != request.ClientId)
+            {
+                return UpdateWallerStatusResult.Failure(
+                    "Wallet does not belong to this client.");
+            }
+
             try
             {
                 wallet.ChangeStatus(request.newStatus);
-                await _wallets.Update(wallet);
                 await _wallets.Save();
             }
             catch (InvalidOperationException ex)
