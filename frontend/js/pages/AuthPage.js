@@ -72,7 +72,7 @@ export function initAuthEvents() {
 
                 setTimeout(() => {
                     window.navigateTo('/clients');
-                }, 2000);
+                }, 500);
             } else {
                 // console.error('Бэкенд вернул ответ без токена:', data);
                 alert('Сервер не прислал токен авторизации');

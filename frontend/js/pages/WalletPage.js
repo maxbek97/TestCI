@@ -10,7 +10,6 @@ function generateUUID() {
     );
 }
 
-// Извлечение clientId из параметров роутера или из текущего URL пути
 function getClientId(params) {
     if (params?.clientId) return params.clientId;
     if (params?.id) return params.id;
@@ -74,10 +73,17 @@ export function initWalletsEvents(params) {
 
     if (tbody) {
         tbody.addEventListener('click', (e) => {
+            // Обработка клика по статусу
             const statusCell = e.target.closest('.status-cell');
             if (statusCell && !statusCell.querySelector('select')) {
-                // ПЕРЕДАЕМ clientId в обработчик
                 activateStatusSelect(statusCell, clientId);
+            }
+
+            // Обработка клика по номеру счета
+            const billCell = e.target.closest('.bill-cell');
+            if (billCell && !billCell.querySelector('input')) {
+                // Изменяем счет, только если его еще нет (или по клику на существующий)
+                activateBillInput(billCell, clientId);
             }
         });
     }
@@ -169,7 +175,7 @@ async function loadWallets(clientId) {
 function activateStatusSelect(cell, clientId) {
     const originalText = cell.querySelector('.status-text')?.textContent.trim() || '';
     const row = cell.closest('tr');
-    const walletId = row.dataset.walletId || row.dataset.id_drw || row.dataset.id;
+    const walletId = row.dataset.walletId;
 
     cell.innerHTML = `
         <span>Заменить на: </span>
@@ -185,7 +191,6 @@ function activateStatusSelect(cell, clientId) {
     let isSubmitting = false;
 
     const revert = () => {
-        // Откатываемся к старому значению, только если запрос НЕ выполняется
         if (!isSubmitting) {
             cell.innerHTML = `<span class="status-text">${originalText}</span>`;
         }
@@ -195,7 +200,6 @@ function activateStatusSelect(cell, clientId) {
         const newStatus = e.target.value;
         if (!newStatus) return;
 
-        // Блокируем срабатывание blur при клике/выборе
         isSubmitting = true;
 
         const payload = {
@@ -205,24 +209,97 @@ function activateStatusSelect(cell, clientId) {
         };
 
         try {
-            // Показываем индикатор обновления
             cell.innerHTML = `<span>Обновление...</span>`;
-
             await api.patch('/wallets/update', payload);
             cell.innerHTML = `<span class="status-text">${newStatus}</span>`;
         } catch (err) {
             console.error('Ошибка изменения статуса:', err);
             alert(err.message || 'Не удалось обновить статус');
-            
-            // Ошибка: возвращаем исходный текст
             isSubmitting = false;
             revert();
         }
     });
 
     select.addEventListener('blur', () => {
-        // Если выбор не был сделан (просто кликнули мимо), откатываемся через таймаут
         setTimeout(() => {
+            revert();
+        }, 150);
+    });
+}
+
+function activateBillInput(cell, clientId) {
+    const originalText = cell.querySelector('.bill-text')?.textContent.trim() || 'Нет привязанного счета';
+    const row = cell.closest('tr');
+    const walletId = row.dataset.walletId;
+
+    // Генерируем подсказку
+    const generatedBillGuid = generateUUID();
+
+    cell.innerHTML = `
+        <input type="text" 
+               class="bill-input" 
+               value="${generatedBillGuid}" 
+               placeholder="${generatedBillGuid}"
+               style="width: 100%; box-sizing: border-box; padding: 4px;" />
+    `;
+
+    const input = cell.querySelector('.bill-input');
+    input.focus();
+    input.select();
+
+    let isSubmitting = false;
+
+    const revert = () => {
+        if (!isSubmitting) {
+            cell.innerHTML = `<span class="bill-text">${originalText}</span>`;
+        }
+    };
+
+    const submitBill = async () => {
+        const billId = input.value.trim();
+        if (!billId) {
+            revert();
+            return;
+        }
+
+        isSubmitting = true;
+
+        const payload = {
+            ClientId: clientId,
+            Id_Dr: walletId,
+            Id_Bill: billId
+        };
+
+        try {
+            cell.innerHTML = `<span>Сохранение...</span>`;
+
+            await api.patch('/wallets/setbill', payload);
+
+            // Фиксируем успешное изменение на UI
+            cell.innerHTML = `<span class="bill-text">${billId}</span>`;
+            cell.dataset.hasBill = "true";
+        } catch (err) {
+            console.error('Ошибка добавления номера счета:', err);
+            alert(err.message || 'Не удалось привязать счет');
+            
+            // Если возникла ошибка — возвращаем исходное состояние без изменений
+            isSubmitting = false;
+            revert();
+        }
+    };
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitBill();
+        } else if (e.key === 'Escape') {
+            revert();
+        }
+    });
+
+    input.addEventListener('blur', () => {
+        setTimeout(() => {
+            // Если потере фокуса не предшествовала отправка по Enter — откатываем
             revert();
         }, 150);
     });
