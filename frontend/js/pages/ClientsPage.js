@@ -2,6 +2,12 @@ import { api } from '/js/api.js';
 import { ClientRow } from '/js/components/ClientRow.js';
 import { navigateTo } from '/js/router.js';
 
+function generateUUID() {
+    return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
+        (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+    );
+}
+
 export function ClientsPage() {
     return `
         <div class="request-wrapper-global">
@@ -71,6 +77,7 @@ export function initClientsEvents() {
     if (createBtn) {
         createBtn.addEventListener('click', () => navigateTo('/clients/create'));
     }
+
     async function loadClients() {
         const paginationInfo = document.getElementById('paginationInfo');
         if (!tbody) return;
@@ -137,14 +144,23 @@ export function initClientsEvents() {
         }
     }
 
-    // ЕДИНСТВЕННЫЙ слушатель кликов по таблице
     if (tbody) {
         tbody.addEventListener('click', (e) => {
+            // 1. Проверяем клик по ячейке с кодом ЦР
+            const idDrCell = e.target.closest('.id-dr-cell');
+            if (idDrCell && !idDrCell.querySelector('input')) {
+                // Предотвращаем срабатывание роутинга на уровне всей строки tr
+                e.stopPropagation();
+                activateIdDrInput(idDrCell);
+                return;
+            }
+
+            // 2. Стандартный переход в кошельки клиента по клику на любую другую часть строки
             const row = e.target.closest('.clickable-row');
             if (row) {
                 const mid = row.dataset.mid;
                 const fullName = row.dataset.fullname;
-    
+
                 if (mid) {
                     sessionStorage.setItem('selectedClientName', fullName);
                     navigateTo(`/clients/${mid}/wallets`);
@@ -187,4 +203,78 @@ export function initClientsEvents() {
     }
 
     loadClients();
+}
+
+function activateIdDrInput(cell) {
+    const originalText = cell.querySelector('.id-dr-text')?.textContent.trim() || 'Нет кода на ЦР';
+    const row = cell.closest('tr');
+    const mid = row.dataset.mid;
+
+    const generatedGuid = generateUUID();
+
+    cell.innerHTML = `
+        <input type="text" 
+               class="id-dr-input" 
+               value="${generatedGuid}" 
+               placeholder="${generatedGuid}"
+               style="width: 100%; box-sizing: border-box; padding: 4px;" />
+    `;
+
+    const input = cell.querySelector('.id-dr-input');
+    input.focus();
+    input.select();
+
+    let isSubmitting = false;
+
+    const revert = () => {
+        if (!isSubmitting) {
+            cell.innerHTML = `<span class="id-dr-text">${originalText}</span>`;
+        }
+    };
+
+    const submitIdDr = async () => {
+        const idDrValue = input.value.trim();
+        if (!idDrValue) {
+            revert();
+            return;
+        }
+
+        isSubmitting = true;
+
+        const payload = {
+            mid: mid,
+            Id_Dr: idDrValue
+        };
+
+        try {
+            cell.innerHTML = `<span>Сохранение...</span>`;
+
+            await api.patch('/clients/setIdDr', payload);
+
+            // Фиксируем успешный результат в UI
+            cell.innerHTML = `<span class="id-dr-text">${idDrValue}</span>`;
+        } catch (err) {
+            console.error('Ошибка сохранения кода ЦР:', err);
+            alert(err.message || 'Не удалось привязать код на платформе ЦР');
+
+            // Возвращаем исходный текст при ошибке
+            isSubmitting = false;
+            revert();
+        }
+    };
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitIdDr();
+        } else if (e.key === 'Escape') {
+            revert();
+        }
+    });
+
+    input.addEventListener('blur', () => {
+        setTimeout(() => {
+            revert();
+        }, 150);
+    });
 }
